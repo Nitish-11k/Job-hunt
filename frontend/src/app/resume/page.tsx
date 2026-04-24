@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Save, CheckCircle2, AlertCircle, Loader2, Sparkles as SparklesIcon } from 'lucide-react';
+import { Save, CheckCircle2, AlertCircle, Loader2, Sparkles } from 'lucide-react';
 import { API_ENDPOINTS } from '@/lib/api';
 
 export default function ResumePage() {
@@ -122,9 +122,4 @@ export default function ResumePage() {
       </div>
     </div>
   );
-}
-
-import { Sparkles as SparklesIcon } from 'lucide-react';
-function Sparkles({ className }: { className?: string }) {
-    return <SparklesIcon className={className} />
 }
