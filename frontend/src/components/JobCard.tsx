@@ -2,7 +2,7 @@ import { Job } from './KanbanBoard';
 
 interface JobCardProps {
   job: Job;
-  onClick: (job: Job) => void;
+  onClick?: (job: Job) => void;
 }
 
 export default function JobCard({ job, onClick }: JobCardProps) {

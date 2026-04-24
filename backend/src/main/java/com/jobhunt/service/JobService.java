@@ -17,12 +17,19 @@ import java.util.Set;
 public class JobService {
 
     private final JobRepository jobRepository;
+    private final com.jobhunt.repository.ResumeRepository resumeRepository;
 
-    // Hardcoded skill profile for calculating match percentage
-    private static final Set<String> TARGET_SKILLS = Set.of(
-            "java", "spring boot", "spring", "c#", ".net", "sql", "postgresql", 
-            "mysql", "system architecture", "microservices", "react", "next.js"
-    );
+    /**
+     * Re-calculates fit scores for all existing jobs based on the current resume.
+     */
+    public void recomputeAllFitScores() {
+        List<Job> jobs = jobRepository.findAll();
+        for (Job job : jobs) {
+            job.setFitPercentage(calculateFitPercentage(job.getDescription()));
+            jobRepository.save(job);
+        }
+        log.info("Recomputed fit scores for {} jobs.", jobs.size());
+    }
 
     /**
      * Process an incoming batch of jobs from an Apify webhook or API call.
@@ -47,9 +54,8 @@ public class JobService {
             job.setPostedDate(dto.getPostedDate() != null ? dto.getPostedDate() : LocalDateTime.now());
             job.setScrapedDate(LocalDateTime.now());
             
-            // Calculate and set the fit score based on the job description
-            double fitScore = calculateFitPercentage(dto.getDescription());
-            job.setFitPercentage(fitScore);
+            // Calculate and set the fit score
+            job.setFitPercentage(calculateFitPercentage(dto.getDescription()));
 
             jobRepository.save(job);
             processedCount++;
@@ -59,20 +65,38 @@ public class JobService {
     }
 
     /**
-     * Simple keyword-matching algorithm.
-     * Compares the JD string against a hardcoded profile of skills.
+     * Improved calculation logic:
+     * Compares job description keywords against words found in the resume.
      */
     private double calculateFitPercentage(String description) {
         if (description == null || description.trim().isEmpty()) {
             return 0.0;
         }
-        
-        String lowerDesc = description.toLowerCase();
-        long matchCount = TARGET_SKILLS.stream()
-                .filter(lowerDesc::contains)
+
+        // Get current resume
+        var resumeOpt = resumeRepository.findFirstByOrderByUploadedAtDesc();
+        if (resumeOpt.isEmpty()) {
+            return 0.0; // No resume to compare against
+        }
+
+        String resumeText = resumeOpt.get().getContent().toLowerCase();
+        String jobText = description.toLowerCase();
+
+        // Simple scoring: count how many "significant" words from resume appear in job description
+        // In a real app, this would use NLP/LLM, but for a 11k-scale project, keyword overlap is robust.
+        String[] resumeWords = resumeText.split("\\W+");
+        Set<String> keywords = new java.util.HashSet<>();
+        for (String word : resumeWords) {
+            if (word.length() > 3) keywords.add(word); // Only count meaningful words
+        }
+
+        if (keywords.isEmpty()) return 0.0;
+
+        long matchCount = keywords.stream()
+                .filter(jobText::contains)
                 .count();
 
-        return Math.min(100.0, ((double) matchCount / TARGET_SKILLS.size()) * 100.0);
+        return Math.min(100.0, ((double) matchCount / Math.min(keywords.size(), 20)) * 100.0);
     }
 
     // Methods for the frontend Dashboard
