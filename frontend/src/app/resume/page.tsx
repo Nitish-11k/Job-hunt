@@ -1,14 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Save, CheckCircle2, AlertCircle, Loader2, Sparkles } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Save, CheckCircle2, AlertCircle, Loader2, Sparkles, Upload } from 'lucide-react';
 import { API_ENDPOINTS } from '@/lib/api';
 
 export default function ResumePage() {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [status, setStatus] = useState<{ type: 'success' | 'error', msg: string } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchResume();
@@ -26,6 +28,35 @@ export default function ResumePage() {
       console.error('Failed to fetch resume:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setStatus(null);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch(API_ENDPOINTS.RESUME_UPLOAD_FILE, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setContent(data.content);
+        setStatus({ type: 'success', msg: 'File uploaded and analyzed!' });
+      } else {
+        setStatus({ type: 'error', msg: 'Failed to upload PDF/Docx.' });
+      }
+    } catch (err) {
+      setStatus({ type: 'error', msg: 'Upload error. Check file size/type.' });
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -54,9 +85,28 @@ export default function ResumePage() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
-      <header>
-        <h1 className="text-3xl font-bold text-white mb-2">My Resume</h1>
-        <p className="text-slate-400">Paste your resume text below to find the best matching jobs.</p>
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-white mb-2">My Resume</h1>
+          <p className="text-slate-400">Upload your PDF/DOCX or paste text to analyze job matches.</p>
+        </div>
+        <div>
+          <input 
+            type="file" 
+            ref={fileInputRef}
+            onChange={handleFileUpload}
+            className="hidden" 
+            accept=".pdf,.docx,.txt"
+          />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            className="flex items-center gap-2 px-5 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-xl transition-all"
+          >
+            {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Upload className="w-5 h-5" />}
+            Upload Resume (PDF/DOCX)
+          </button>
+        </div>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -68,7 +118,7 @@ export default function ResumePage() {
               onChange={(e) => setContent(e.target.value)}
               placeholder="Paste your professional summary, skills, and experience here..."
               className="relative w-full h-[500px] bg-slate-900 border border-slate-800 rounded-2xl p-6 text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 resize-none font-mono text-sm leading-relaxed"
-              disabled={loading}
+              disabled={loading || uploading}
             />
           </div>
 
