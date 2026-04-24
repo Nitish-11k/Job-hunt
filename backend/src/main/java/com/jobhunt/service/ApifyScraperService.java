@@ -42,21 +42,32 @@ public class ApifyScraperService {
         // Webhook URL where Apify will send data once scraping finishes 
         String webhookUrl = backendUrl + "/api/jobs/apify-webhook";
 
-        // URL to run the actor and pass our webhook
+        // URL to run the actor
         String url = String.format("%s/%s/runs?token=%s", APIFY_BASE_URL, actorId, apifyToken);
 
-        // This is the Input Configuration JSON that Apify requires. 
-        // Note: Field names might slightly vary based on the exact Actor you choose.
+        // This is the Input Configuration JSON for the Actor
         Map<String, Object> inputPayload = Map.of(
             "searchQuery", keyword,
             "location", location,
-            "maxItems", 50 // To avoid high Apify billing initially
+            "maxItems", 50
+        );
+
+        // We append the webhook to the URL as a query param or part of the POST
+        // Correct way for Apify runs: Pass it as 'webhooks' in the request
+        Map<String, Object> body = Map.of(
+            "input", inputPayload,
+            "webhooks", java.util.List.of(
+                Map.of(
+                    "eventTypes", java.util.List.of("ACTOR.RUN.SUCCEEDED"),
+                    "requestUrl", webhookUrl
+                )
+            )
         );
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         
-        HttpEntity<Map<String, Object>> request = new HttpEntity<>(inputPayload, headers);
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
 
         try {
             log.info("Triggering Apify Scraper for {} (Query: {})...", platform, keyword);
