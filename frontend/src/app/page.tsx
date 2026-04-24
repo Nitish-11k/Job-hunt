@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import KanbanBoard from '@/components/KanbanBoard';
 import { Loader2, RefreshCw } from 'lucide-react';
+import { API_ENDPOINTS } from '@/lib/api';
 
 export default function Dashboard() {
   const [jobs, setJobs] = useState<any[]>([]);
@@ -15,7 +16,7 @@ export default function Dashboard() {
 
   const fetchJobs = async () => {
     try {
-      const res = await fetch('http://localhost:8080/api/jobs');
+      const res = await fetch(API_ENDPOINTS.JOBS);
       if (res.ok) {
         const data = await res.json();
         setJobs(data);

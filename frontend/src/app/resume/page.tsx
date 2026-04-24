@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FileText, Save, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { Save, CheckCircle2, AlertCircle, Loader2, Sparkles as SparklesIcon } from 'lucide-react';
+import { API_ENDPOINTS } from '@/lib/api';
 
 export default function ResumePage() {
   const [content, setContent] = useState('');
@@ -16,7 +17,7 @@ export default function ResumePage() {
   const fetchResume = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:8080/api/resume/current');
+      const res = await fetch(API_ENDPOINTS.RESUME_CURRENT);
       if (res.ok) {
         const data = await res.json();
         setContent(data.content || '');
@@ -33,7 +34,7 @@ export default function ResumePage() {
     setSaving(true);
     setStatus(null);
     try {
-      const res = await fetch('http://localhost:8080/api/resume/upload', {
+      const res = await fetch(API_ENDPOINTS.RESUME_UPLOAD, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content })

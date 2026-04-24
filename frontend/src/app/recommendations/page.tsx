@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import JobCard from '@/components/JobCard';
-import { Sparkles, ArrowUpDown, Filter, Search, Loader2 } from 'lucide-react';
+import { Sparkles, Filter, Search, Loader2 } from 'lucide-react';
+import { API_ENDPOINTS } from '@/lib/api';
 
 export default function RecommendationsPage() {
   const [jobs, setJobs] = useState<any[]>([]);
@@ -15,7 +16,7 @@ export default function RecommendationsPage() {
 
   const fetchJobs = async () => {
     try {
-      const res = await fetch('http://localhost:8080/api/jobs');
+      const res = await fetch(API_ENDPOINTS.JOBS);
       if (res.ok) {
         const data = await res.json();
         // Sort by fit percentage descending
