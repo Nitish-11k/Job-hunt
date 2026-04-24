@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: jobhunt
+  datasource:
+    url: jdbc:postgresql://localhost:5432/jobhunt_db
+    username: my_user
+    password: my_password
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+# API keys and 3rd party secrets
+apify:
+  api:
+    # We use environment variable injection for security. 
+    # If APIFY_TOKEN is not available in ENV, it defaults to the literal string you replace below.
+    token: ${APIFY_TOKEN:PASTE_YOUR_APIFY_TOKEN_HERE}
