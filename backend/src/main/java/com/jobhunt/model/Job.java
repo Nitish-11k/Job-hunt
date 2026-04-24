@@ -38,6 +38,8 @@ public class Job {
     @Column(nullable = false)
     private LocalDateTime scrapedDate;
 
+    private LocalDateTime appliedDate; // Tracks exactly when you applied
+
     @Enumerated(EnumType.STRING)
     private ApplicationState applicationState = ApplicationState.SAVED;
 
