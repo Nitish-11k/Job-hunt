@@ -16,6 +16,14 @@ import java.util.List;
 public class JobController {
 
     private final JobService jobService;
+    private final com.jobhunt.service.ApifyScraperService apifyScraperService;
+
+    @PostMapping("/sync")
+    public ResponseEntity<String> triggerSync() {
+        // Triggering for a default keyword for now, can be customized later
+        apifyScraperService.triggerScrapingJob("linkedin", "Software Engineer", "Remote");
+        return ResponseEntity.ok("Scraping triggered");
+    }
 
     /**
      * Endpoint triggered by Apify task completion webhook.

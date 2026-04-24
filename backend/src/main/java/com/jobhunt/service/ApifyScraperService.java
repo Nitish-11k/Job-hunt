@@ -26,6 +26,9 @@ public class ApifyScraperService {
     private static final String NAUKRI_ACTOR = "your-naukri-actor-id"; // Need to select one from store
     private static final String INTERNSHALA_ACTOR = "your-internshala-actor-id";
 
+    @Value("${backend.url:http://localhost:8080}")
+    private String backendUrl;
+
     /**
      * Triggers the Apify Scraper via REST API.
      */
@@ -36,9 +39,8 @@ public class ApifyScraperService {
             return;
         }
 
-        // Webhhok URL where Apify will send data once scraping finishes 
-        // (This matches the /api/jobs/apify-webhook endpoint we created earlier)
-        String webhookUrl = "https://your-server-ip-or-link.com/api/jobs/apify-webhook";
+        // Webhook URL where Apify will send data once scraping finishes 
+        String webhookUrl = backendUrl + "/api/jobs/apify-webhook";
 
         // URL to run the actor and pass our webhook
         String url = String.format("%s/%s/runs?token=%s", APIFY_BASE_URL, actorId, apifyToken);

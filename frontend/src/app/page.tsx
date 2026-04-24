@@ -30,12 +30,17 @@ export default function Dashboard() {
 
   const handleSync = async () => {
     setSyncing(true);
-    // In a real scenario, this would trigger the Apify scraper
-    // For now we'll just simulate a delay or call the webhook if we had the data
-    setTimeout(() => {
+    try {
+      const res = await fetch(API_ENDPOINTS.JOBS_SYNC, { method: 'POST' });
+      if (res.ok) {
+        alert("Scraping started! Jobs will appear in a few minutes.");
+      }
+    } catch (err) {
+      console.error('Failed to start sync:', err);
+    } finally {
       setSyncing(false);
       fetchJobs();
-    }, 2000);
+    }
   };
 
   return (
