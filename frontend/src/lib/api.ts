@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://job-hunt-co9p.onrender.com';
 
 export const API_ENDPOINTS = {
   JOBS: `${API_BASE_URL}/api/jobs`,
