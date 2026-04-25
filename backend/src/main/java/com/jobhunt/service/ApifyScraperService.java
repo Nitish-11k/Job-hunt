@@ -41,6 +41,7 @@ public class ApifyScraperService {
 
         // Webhook URL where Apify will send data once scraping finishes 
         String webhookUrl = backendUrl + "/api/jobs/apify-webhook";
+        log.info("Using webhook URL: {}", webhookUrl);
 
         // URL to run the actor
         String url = String.format("%s/%s/runs?token=%s", APIFY_BASE_URL, actorId, apifyToken);

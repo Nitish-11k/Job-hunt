@@ -20,16 +20,14 @@ public class JobController {
 
     @PostMapping("/sync")
     public ResponseEntity<String> triggerSync() {
-        // Triggering for a default keyword for now, can be customized later
+        System.out.println("DEBUG: Triggering job sync...");
         apifyScraperService.triggerScrapingJob("linkedin", "Software Engineer", "Remote");
         return ResponseEntity.ok("Scraping triggered");
     }
 
-    /**
-     * Endpoint triggered by Apify task completion webhook.
-     */
     @PostMapping("/apify-webhook")
     public ResponseEntity<String> handleApifyWebhook(@RequestBody List<ApifyJobDto> jobs) {
+        System.out.println("DEBUG: Received data from Apify Webhook! Job count: " + (jobs != null ? jobs.size() : 0));
         jobService.processApifyJobs(jobs);
         return ResponseEntity.ok("Jobs processed successfully");
     }
