@@ -21,7 +21,7 @@ public class ApifyScraperService {
 
     // Apify Platform Actor IDs (Actor = the specific scraper bot)
     // You can find exact Actor IDs in the Apify Store (e.g., misr/indeed-scraper)
-    private static final String LINKEDIN_ACTOR = "bebity~linkedin-jobs-scraper";
+    private static final String LINKEDIN_ACTOR = "voyager~linkedin-jobs-scraper";
     private static final String INDEED_ACTOR = "misr~indeed-scraper"; 
     private static final String NAUKRI_ACTOR = "your-naukri-actor-id"; // Need to select one from store
     private static final String INTERNSHALA_ACTOR = "your-internshala-actor-id";
@@ -49,6 +49,7 @@ public class ApifyScraperService {
         // This is the Input Configuration JSON for the Actor
         Map<String, Object> inputPayload = Map.of(
             "searchQuery", keyword,
+            "queries", java.util.List.of(keyword),
             "location", location,
             "maxItems", 50
         );

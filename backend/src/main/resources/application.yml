@@ -19,7 +19,7 @@ spring:
       ddl-auto: update
     show-sql: true
 server:
-  port: 8080
+  port: ${PORT:8080}
 backend:
   url: ${BACKEND_URL:http://localhost:8080}
 apify:
